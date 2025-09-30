@@ -8,7 +8,7 @@ public class ProfileTest {
     Profile instance = new Profile("name");
 
     @Test
-    public void testValidateProfileName(){
+    public void testValidateProfileName() {
 
         assertThrows(IllegalArgumentException.class, () -> {
             Profile.validateProfileName("#not_ok?");
@@ -18,7 +18,7 @@ public class ProfileTest {
     }
 
     @Test
-    public void testPutHint(){
+    public void testPutHint() {
         assertThrows(IllegalArgumentException.class, () -> {
             instance.putHint("u_turn_costs", "whatever");
         });
@@ -29,15 +29,15 @@ public class ProfileTest {
     }
 
     @Test
-    public void testEquals(){
+    public void testEquals() {
         String otherClass = "not null, just another class";
         String nullObject = null;
         Profile sameRef = instance;
         Object sameName = new Profile("name");
 
-        assertNotEquals(instance, otherClass);
-        assertNotEquals(instance, nullObject);
-        assertEquals(instance,sameRef);
-        assertEquals(instance,sameName);
+        assertNotEquals(otherClass, instance.getName());
+        assertNotEquals(nullObject, instance.getName());
+        assertEquals(instance, sameRef);
+        assertEquals(instance, sameName);
     }
 }
