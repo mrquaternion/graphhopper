@@ -21,8 +21,10 @@ import com.graphhopper.coll.GHIntLongHashMap;
 import com.graphhopper.routing.AStar;
 import com.graphhopper.routing.DijkstraBidirectionRef;
 import com.graphhopper.routing.Path;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
+import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.SpeedWeighting;
@@ -30,6 +32,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -42,8 +46,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GHUtilityTest {
     final int DEFAULT_SIZE = 100;
 
-    record Node(int nodeId, double lat, double lon, double ele) {}
-    record Edge(int nodeA, int nodeB, int distance) {}
+    public record Node(int nodeId, double lat, double lon, double ele) { }
+    public record Edge(int nodeA, int nodeB, int distance) { }
 
     @Test
     public void testEdgeStuff() {
