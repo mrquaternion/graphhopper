@@ -17,6 +17,7 @@
  */
 package com.graphhopper.util;
 
+import com.github.javafaker.Faker;
 import com.graphhopper.util.shapes.GHPoint;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +27,28 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Peter Karich
  */
 public class PointListTest {
+    @Test
+    public void testParse2DJSON() {
+        Faker faker = new Faker();
+        StringBuilder coords = new StringBuilder();
+
+        for (int i = 0; i < 10; i++) {
+            String lon = faker.address().longitude();
+            String lat = faker.address().latitude();
+            coords.append("[")
+                    .append(lon)
+                    .append(",")
+                    .append(lat)
+                    .append("]");
+        }
+
+        String testData = coords.toString();
+        PointList list = new PointList();
+
+        list.parse2DJSON(testData);
+        assertEquals(10, list.size());
+    }
+
     @Test
     public void testEquals() {
         assertEquals(Helper.createPointList(), PointList.EMPTY);
