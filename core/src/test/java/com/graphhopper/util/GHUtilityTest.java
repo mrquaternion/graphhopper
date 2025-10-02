@@ -95,6 +95,7 @@ public class GHUtilityTest {
                 new Edge(0, 2, 300)
         );
 
+        // Création des noeuds de manière safe
         try (BaseGraph graph = new BaseGraph(dir, true, true, 100, 8)) {
             graph.create(DEFAULT_SIZE);
 
@@ -122,6 +123,7 @@ public class GHUtilityTest {
         }
     }
 
+    // Fonction réutilisable
     private void setNodes(BaseGraph graph, List<Node> nodes) {
         NodeAccess na = graph.getNodeAccess();
         for (Node node : nodes) {
@@ -129,6 +131,7 @@ public class GHUtilityTest {
         }
     }
 
+    // Fonction réutilisable
     private List<EdgeIteratorState> setEdges(BaseGraph graph, List<Edge> edges, DecimalEncodedValue speedEnc) {
         List<EdgeIteratorState> eiss = new ArrayList<>();
         for (Edge edge : edges) {
@@ -151,7 +154,7 @@ public class GHUtilityTest {
                 new Node(2, 0.0, 180.0, 100.0),
                 new Node(3, 90.0, -180.0, 50.0)
         );
-        // 0-1-2 et 0-3-2
+        // 0-1-2 et 0-3-2 : ça fait une forme de diamant (ou losange lol)
         List<Edge> edges = List.of(
                 new Edge(0, 1, 100),
                 new Edge(1, 2, 100),

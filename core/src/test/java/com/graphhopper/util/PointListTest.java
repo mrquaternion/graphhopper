@@ -32,6 +32,7 @@ public class PointListTest {
         Faker faker = new Faker();
         StringBuilder coords = new StringBuilder();
 
+        // On crée de faux points, qui n'ont pas de lien entre eux
         for (int i = 0; i < 10; i++) {
             String lon = faker.address().longitude();
             String lat = faker.address().latitude();
@@ -45,7 +46,8 @@ public class PointListTest {
         String testData = coords.toString();
         PointList list = new PointList();
 
-        list.parse2DJSON(testData);
+        // On parse comme si c'était un JSON
+        assertDoesNotThrow(() -> list.parse2DJSON(testData));
         assertEquals(10, list.size());
     }
 

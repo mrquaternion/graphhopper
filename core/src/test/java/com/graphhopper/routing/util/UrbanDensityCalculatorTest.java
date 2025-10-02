@@ -34,6 +34,8 @@ public class UrbanDensityCalculatorTest {
             eis.set(roadClassEnc, RoadClass.TRACK);
             int eid = eis.getEdge();
 
+            // On donne de fausses données et on force RURAL sur les
+            // routes du type TRACK avec le cityAreaRadius
             UrbanDensityCalculator.calcUrbanDensity(
                     graph,
                     urbanDensityEnc,
