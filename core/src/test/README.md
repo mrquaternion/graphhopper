@@ -1,7 +1,7 @@
 
 # Tests unitaires automatiques — Documentation
 
-### Mathias La Rochelle & Marcelo Amarilla-Hernandez
+### Mathias La Rochelle & Marcelo Amarilla
 
 ## Choix du module
 
@@ -9,7 +9,7 @@ Nous avons choisis uniquement le module `core` car, c'est celui qui nous semblai
 
 ## Choix des classes
 
-En surfant le rapport `JaCoCo` générer par `mvn verify`, nous avions pu faciliter la recherche des classes qui contenaient des méthodes non couvertes par les tests actuels. Avant d'arriver aux complications que nous avions eu avec pitest, les classes qui ont attirées notre attention étaient : `com.graphhopper.config.Profile` et `com.graphhopper.util.GHUtility`. Il y a vraiment aucune autre raison spéciale. Chacune de ces classes contenaient beaucoup de rouge alors cela a attiré notre attention et nous avons tenté notre chance.
+En surfant le rapport `JaCoCo` générer par `mvn verify`, nous avons pu faciliter la recherche des classes qui contenaient des méthodes non couvertes par les tests actuels. Avant d'arriver aux complications que nous avions eu avec pitest, les classes qui ont attirées notre attention étaient : `com.graphhopper.config.Profile` et `com.graphhopper.util.GHUtility`. Il y a vraiment aucune autre raison spéciale. Chacune de ces classes contenaient beaucoup de rouge alors cela a attiré notre attention et nous avons tenté notre chance.
 
 ---
 
@@ -208,13 +208,17 @@ Le code de `getCommonNodes(...)` doit détecter l'absence de sommet commun et la
 ---
 
 ### Détails
-Comme vous pouvez voir dans la vue d'ensemble globale, plus précisement dans la section _Mutation Coverage_, le dénominateur a augmenté de 2 unités. Ceci correspond exactement à la création de 2 mutants. 
+Comme vous pouvez voir dans la vue d'ensemble globale, plus précisement dans la section _Mutation Coverage_, le dénominateur a augmenté de 2 unités. Ceci correspond exactement à la découverte de 2 mutants. 
 
-**<u>Cependant</u>**, initialement, nous n'avions qu'un seul mutant. Nous avons réussi à en créer un nouveau grâce à la classe `UrbanDensityCalculator` dans le package listé ci-dessus (le 2e). 
+**<u>Cependant</u>**, initialement, nous n'avions qu'un seul nouveau mutant détecté. Nous avons réussi à en créer un nouveau grâce à la classe `UrbanDensityCalculator` dans le package listé ci-dessus (le 2e). 
 
 La démarche visée a été, encore une fois, de fouiller à travers le rapport `JaCoCo` du module `core`. La classe au complet était non-couverte (voir le "avant" ci-dessus) et malgré sa structure intimidante, a suscité notre intérêt et ce, principalement à cause de la documentation qui était fournie (comparativement aux autres classes).
 
-À l'occurence, sa classe de test correspondante est `UrbanDensityCalculatorTest` et la méthode créée est `testTrackEdgeIsRural()`. Selon nous, la création de ce nouveau mutant est arrivée car le code était absolument pas couvert. Donc, il y avait de grandes chances que PIT détecte une ligne où un mutant supplémentaire pouvait être.
+À l'occurence, sa classe de test correspondante est `UrbanDensityCalculatorTest` et la méthode créée est `testTrackEdgeIsRural()`. Selon nous, l'apparition de ce nouveau mutant est arrivée car le code était absolument pas couvert. Donc, il y avait de grandes chances que PIT détecte une ligne où un mutant supplémentaire pouvait être. Ce mutant nouvellement détecté se trouve dans une expression lambda à la ligne 92 de `UrbanDensityCalculator`. Le mutant concerne le cas où sa valeur
+retournée, qui doit être un double, est 0.0d. Puisque cette ligne n'était pas du tout couverte, il est normal que notre dernier test le découvre (et que le test précédant ne le considère jamais).
+
+En ce qui concerne le tout premier mutant nouvellement détecté, il se trouvait dans la classe `Profile`. ProfileTest n'existait pas au moment où nous avons analysé le code et il est donc également naturel qu'on en ait détecté un nouveau. Celui-ci concerne la méthode "hasTurnCosts()" qui retourne *true* si l'attribut "turnCosts" de Profile est non *null*. Puisque nous n'avons pas initialisé cet attribut dans le cadre des `ProfileTest`, pitest a détecté le mutant pour lequel le retour soit *false*.
+
 
 
 ## Java Faker
