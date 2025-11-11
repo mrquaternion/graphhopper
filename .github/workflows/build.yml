@@ -37,36 +37,8 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
-      # Mais le old-score n'a pas rapport avec les classes modifiées --
-      - name: id modified classes
-        id: modified
-        run: |
-         git fetch origin master:master || true
-         files=$(git diff --name-only origin/master...HEAD -- src/main/java || true)
-          
-         if [ -z "$files" ]; then
-          echo "No files changes"
-          echo "pattern=" >> $GITHUB_OUTPUT
-          exit 0
-         fi
-         pattern=$(echo "$files" | \
-           sed -n 's|^src/main/java/||p' | \
-           sed -E 's|\.java$|.*|' | \
-           sed 's|/|.|g' | \
-           sort -u | paste -sd, -)
-          
-         if [ -z "$pattern" ]; then
-          echo "pattern=" >> $GITHUB_OUTPUT
-          else
-           echo "pattern=$pattern" >> $GITHUB_OUTPUT
-         fi
-
       - name: pitest report
-        if: ${{ steps.changed.outputs.pattern != '' }}
-        run: |
-          PATTERN="${{ steps.changed.outputs.pattern }}"
-          echo "Running PIT on: $PATTERN"
-          mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses="$PATTERN"
+        run: mvn org.pitest:pitest-maven:mutationCoverage
 
       - name: id mutation score
         id : new
