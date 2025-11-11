@@ -37,6 +37,7 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
+      # Mais le old-score n'a pas rapport avec les classes modifiées --
       - name: id modified classes
         id: modified
         run: |
