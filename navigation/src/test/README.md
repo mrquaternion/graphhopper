@@ -19,13 +19,14 @@ Dans la classe de test `NavigateResourceTest`, nous avons créé des *mocks* pou
 - `GraphHopper`
 - `TranslationMap` 
 - `EncodingManager`
+- `HttpServletRequest`
 
-En revanche, la configuration`GraphHopperConfig`, qui est l'un des paramètres du 
+En revanche, la configuration `GraphHopperConfig`, qui est l'un des paramètres du 
 constructeur de `NavigateResource`, n'est pas un *mock*, contrairement aux deux 
 premiers, car elle nécessite l'initialisation d'un attribut particulier. En fait, 
 il est possible de le garder en tant que *mock*, mais nous aurions pu stubber la 
-méthode `asPMap()`. Cependant, nous ne savions pas comment faire alors, nous avons 
-préféré l'instancier.
+méthode `asPMap()`. Cependant, ayant de la difficulté à comprendre son usage, 
+nous avons préféré l'instancier.
 
 ## Les stubs
 Les appels `when(...).thenReturn(...)` constituent des *stubs*, permettant de 
