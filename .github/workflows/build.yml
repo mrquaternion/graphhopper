@@ -37,9 +37,35 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
+      - name: id modified classes
+        id: modified
+        run: |
+         git fetch origin master:master || true
+         files=$(git diff --name-only origin/master...HEAD -- src/main/java || true)
+          
+         if [ -z "$files" ]; then
+          echo "No files changes"
+          echo "pattern=" >> $GITHUB_OUTPUT
+          exit 0
+         fi
+         pattern=$(echo "$files" | \
+           sed -n 's|^src/main/java/||p' | \
+           sed -E 's|\.java$|.*|' | \
+           sed 's|/|.|g' | \
+           sort -u | paste -sd, -)
+          
+         if [ -z "$pattern" ]; then
+          echo "pattern=" >> $GITHUB_OUTPUT
+          else
+           echo "pattern=$pattern" >> $GITHUB_OUTPUT
+         fi
+
       - name: pitest report
-        run: mvn test org.pitest:pitest-maven:mutationCoverage # or wtv Mathias did to make it happen, this didn't work for me.
-      # actually it will most likely be too heavy as it was during tache 2... should we identify modified classes?
+        if: ${{ steps.changed.outputs.pattern != '' }}
+        run: |
+          PATTERN="${{ steps.changed.outputs.pattern }}"
+          echo "Running PIT on: $PATTERN"
+          mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses="$PATTERN"
 
       - name: id mutation score
         id : new
