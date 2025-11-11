@@ -37,3 +37,63 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
+      - name: pitest report
+        run: mvn test org.pitest:pitest-maven:mutationCoverage # or wtv Mathias did to make it happen, this didn't work for me.
+      # actually it will most likely be too heavy as it was during tache 2... should we identify modified classes?
+
+      - name: id mutation score
+        id : new
+        run: |
+          FILE=$(ls -d target/pit-reports/*/index.html 2>/dev/null | head -n1 || true)
+          if [ -z "$FILE" ]; then
+            echo "Could not find PIT report index.html under target/pit-reports/*"
+            exit 1
+          fi
+          SCORE=$(grep -oP '(?<=td>)[0-9.]+' "$FILE" | sed -n '3p')
+          if [ -z "$SCORE" ]; then
+            echo "Could not parse mutation score from $FILE"
+            exit 1
+          fi
+          echo "Found score: $SCORE" 
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+        # Théoriquement, le score de mutation détecté est maintenant disponible pour le prochain step
+
+      - name: Find old score
+        id: old
+        run: |
+          FILE=$(ls -d .github/metrics/mutation-score.txt 2>/dev/null | head -n1 || true)
+          if [ -z "$FILE" ]; then
+            echo "Could not find PIT report index.html under target/pit-reports/*"
+            exit 1
+          fi
+          OLDSCORE=$(grep -oP '\b([0-9]{1,2}|100)\b' "$FILE" | head -n1)
+          if [ -z "$SCORE" ]; then
+            echo "Could not parse mutation score from $FILE"
+            exit 1
+          fi
+            echo "Found old score: $OLDSCORE" 
+            echo "oldscore=$OLDSCORE" >> $GITHUB_OUTPUT
+
+      - name: Compare scores
+        run: |
+          NEW="${{ steps.new.outputs.score }}"
+          OLD="${{ steps.old.outputs.oldscore }}"
+
+          if (( $(echo "$NEW < $OLD" | bc -l) )); then
+            echo "Mutation score dropped"
+            exit 1
+          else
+            echo "Mutation score is at least the same"
+          fi
+
+      - name: Update old score
+        if: success()
+        run: |
+          echo "${{ steps.new.outputs.score }}" > .github/metrics/mutation-score.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .github/metrics/mutation-score.txt
+          git commit -m "Update mutation score baseline" "" exit 0
+          git push
