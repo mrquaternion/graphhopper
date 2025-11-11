@@ -225,5 +225,3 @@ En ce qui concerne le tout premier mutant nouvellement détecté, il se trouvait
 Au départ, nous avons tenté de trouver une classe qui utilisait des adresses réelles. Nous avons trouvé `NameSimilarityEdgeFilter`, cependant des tests avaient déjà été configurés. En fait, grâce à cette classe, il était possible de vérifier la similarité entre le nom associé à deux noeuds et de déterminer s'il était valable d'accepter ou non.
 
 Après plusieurs recherches, nous sommes tombés (encore grâce à `JaCoCo`) sur la méthode `parse2DJSON()` de la classe `PointList` dans le package `util` du module `web-api`. Elle était non-couverte alors nous l'avons choisie. La méthode est assez triviale; on passe une chaîne de charactères qui est supposé simuler des données géospatiales, et elle décortique le string de sorte à ajouter les tuples à l'objet créé juste avant, `PointList list`.
-
-## Tester une github Actions
