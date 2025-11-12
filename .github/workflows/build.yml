@@ -41,7 +41,7 @@ jobs:
         run: mvn -B clean test
 
       - name: pitest report
-        run: mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses="com.graphhopper.navigation.*"
+        run: mvn -pl :graphhopper-core -am org.pitest:pitest-maven:1.21.1:mutationCoverage -DargLine="" -DoutputFormats=HTML
 
       - name: id mutation score
         id : new
