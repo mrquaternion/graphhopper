@@ -138,11 +138,10 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- create jar with test classes to be reused in other projects -->
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
-                    <version>1.15.0</version>
+                    <version>1.21.1</version>
                     <configuration>
                         <targetClasses>
                             <param>com.graphhopper.*</param>
@@ -150,8 +149,6 @@
                         <targetTests>
                             <param>com.graphhopper.*</param>
                         </targetTests>
-
-                        <junit5Plugin>org.pitest.junit5</junit5Plugin>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -161,8 +158,6 @@
                         </dependency>
                     </dependencies>
                 </plugin>
-
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -175,7 +170,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>

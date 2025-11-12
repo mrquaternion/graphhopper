@@ -56,6 +56,29 @@
     </dependencies>
 
     <build>
+        <plugins>
+        <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <version>1.21.1</version>
+            <dependencies>
+                <dependency>
+                    <groupId>org.pitest</groupId>
+                    <artifactId>pitest-junit5-plugin</artifactId>
+                    <version>1.2.1</version>
+                </dependency>
+            </dependencies>
+            <configuration>
+                <argLine>@{argLine} -Xmx1200m -Xms1200m -Duser.language=en</argLine>
+                <outputFormats>
+                    <outputFormat>XML</outputFormat>
+                    <outputFormat>HTML</outputFormat>
+                </outputFormats>
+                <mutators>ALL</mutators>
+                <threads>2</threads>
+            </configuration>
+        </plugin>
+    </plugins>
         <!-- make version available at runtime -->
         <resources>
             <resource>
