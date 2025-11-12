@@ -13,8 +13,10 @@
         <groupId>com.graphhopper</groupId>
         <artifactId>graphhopper-parent</artifactId>
         <version>11.0-SNAPSHOT</version>
-    </parent>  
-
+    </parent>
+    <properties>
+    <argLine></argLine> <!-- MARCELO : ENLEVER ÇA SI ÇA CHANGE RIEN!!-->
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.graphhopper</groupId>
