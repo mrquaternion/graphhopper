@@ -120,12 +120,12 @@
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
             <scope>test</scope>
-        </dependency>
+        </dependency> --> <!-- ERREUR DUPLICATION? - MARCELO-->
 
         <!-- For fake data -->
         <dependency>
