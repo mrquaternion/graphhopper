@@ -1,5 +1,8 @@
 name: Build and Test
-on: push
+on:
+  push:
+    branches:
+      - gitact-test
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,3 +40,7 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
+      - name: pitest report for a class from web
+        run: |
+          cd web
+          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
