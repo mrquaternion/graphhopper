@@ -52,6 +52,7 @@ jobs:
         id: init
         run: |
           git checkout ${{ github.event.before }}
+          mvn -q -DskipTests install
         
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
         
@@ -117,7 +118,7 @@ jobs:
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
-              SCORE=$(grep -gitoP 'Mutation score[^0-9]*\K[0-9]+' target/pit-reports/*/index.html | head -n 1)
+              SCORE=$(grep -oP 'Mutation score[^0-9]*\K[0-9]+' target/pit-reports/*/index.html | head -n 1)
               echo "Le score est $SCORE"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
             )
