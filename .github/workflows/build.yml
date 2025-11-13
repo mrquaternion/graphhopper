@@ -35,12 +35,9 @@ jobs:
           restore-keys: |
             ${{ runner.os}}-node_modules-
       - name: Build ${{ matrix.java-version }}
-        run: mvn -B clean test
-
-      - name: Rickroll test fail
         id: tests
         continue-on-error: true
-        run: mvn -B test
+        run: mvn -B clean test
       - name: Rickroll safe
         if: steps.tests.outcome == 'success'
         run: echo "Tu es safe !"
