@@ -36,4 +36,14 @@ jobs:
             ${{ runner.os}}-node_modules-
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
-
+      - name: Rickroll test fail
+        id: tests
+        run: |
+          mvn -B test
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+      - name: Rickroll safe
+        if: steps.tests.outputs.exit_code == '0'
+        run: echo "Tu es safe !"
+      - name: Get rickroll
+        if: steps.tests.outputs.exit_code != '0'
+        run: echo "Tes tests ont fail mon grand."
