@@ -38,6 +38,7 @@ jobs:
         run: mvn -B clean test
       - name: Rickroll test fail
         id: tests
+        continue-on-error: true
         run: |
           mvn -B test
           echo "exit_code=$?" >> $GITHUB_OUTPUT
