@@ -30,9 +30,9 @@ import java.net.SocketTimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-// * @author Peter Karich
-
+/**
+ * @author Peter Karich
+*/
 public class CGIARProviderTest {
 
     private double precision = .1;
