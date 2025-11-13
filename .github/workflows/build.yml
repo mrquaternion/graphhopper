@@ -43,6 +43,11 @@ jobs:
       - name: build external modules
         run: mvn -q -DskipTests install
 
+      - name: Checkout history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: pitest report for modified
         id: pit
         run: |
