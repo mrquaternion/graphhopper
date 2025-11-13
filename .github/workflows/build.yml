@@ -42,7 +42,69 @@ jobs:
 
       - name: build external modules
         run: mvn -q -DskipTests install
+
+      - name: pitest report for modified
+        id: pit
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD-1 HEAD | grep '\.java$' || true)
+          
+          echo "Changes Java files:"
+          echo "$CHANGED_FILES"
+          
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No Java files identified"
+            exit 0
+          fi
+          
+          
+          declare -A MODULE_TO_CLASSES
+          
+          while IFS= read -r FILE; do
+            MODULE_DIR="${FILE%%/*}"}
+          
+            # On obtient le nom du module de chaque fichier
         
+            # on construit les deux chemins pour identifier si c'est un test ou un main
+            PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
+            PREFIX_TEST="${MODULE_DIR}/src/test/java/"
+          
+            # on prend le chemin sans le prefix (e.i ..du répertoire)
+            if [[ "$FILE" == $PREFIX_MAIN* ]]; then
+              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
+            elif [[ "$FILE" == $PREFIX_TEST* ]]; then
+              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
+            else
+              continue
+            fi
+          
+            PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
+            PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
+          
+            if [ -z "${MODULE_TO_CLASSES[$MODULE_DIR]}" ]; then
+              MODULE_TO_CLASSES[$MODULE_DIR]="$PATH_FOR_PIT"
+            else
+              MODULE_TO_CLASSES[$MODULE_DIR]="${MODULE_TO_CLASSES[$MODULE_DIR]},$PATH_FOR_PIT"
+            fi
+          done <<< "$CHANGED_FILES"
+          
+          # les chemins pour la commande mvn pitest sont créés
+          
+          for MODULE_DIR in "${!MODULE_TO_CLASSES[@]}"; do
+            TARGET_CLASSES="${MODULE_TO_CLASSES[$MODULE_DIR]}"
+            
+            (
+              cd "$MODULE_DIR"
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DoutputFormats=HTML
+            )
+          done
+      
+      
+      
+      
+      
+      
+      
+
       - name: pitest report for a class from web
         run: |
           cd web
