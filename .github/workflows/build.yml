@@ -43,4 +43,6 @@ jobs:
         run: echo "Tu es safe !"
       - name: Get rickroll
         if: steps.tests.outcome == 'failure'
-        run: cat your_tests_dont_pass_bro.txt
+        run: | 
+          cat your_tests_dont_pass_bro.txt
+          exit 1
