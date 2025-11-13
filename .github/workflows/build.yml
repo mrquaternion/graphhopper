@@ -61,7 +61,7 @@ jobs:
             echo "score=100" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+          echo "trace A"
           
           declare -A MODULE_TO_CLASSES
           
@@ -122,6 +122,7 @@ jobs:
               echo "Le score est $SCORE"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
             )
+          echo "Trace B"
           done
           # Attention : on réécrit le score plusieurs fois...
           
