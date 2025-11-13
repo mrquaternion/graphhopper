@@ -30,10 +30,11 @@ import java.net.SocketTimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * @author Peter Karich
-ici
+
+// * @author Peter Karich
+
 public class CGIARProviderTest {
+/**
     private double precision = .1;
     CGIARProvider instance;
 
@@ -153,6 +154,6 @@ public class CGIARProviderTest {
         assertEquals(48, instance.getEle(44.94, 9.999999), precision);
         assertEquals("srtm_39_04", instance.getFileName(44.94, 10.000001));
         assertEquals(48, instance.getEle(44.94, 10.000001), precision);
-    }
+    }*/
 }
- */
+
