@@ -52,8 +52,6 @@ jobs:
         id: init
         run: |
           git checkout ${{ github.event.before }}
-          
-          mvn -DskipTests install
         
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
         
