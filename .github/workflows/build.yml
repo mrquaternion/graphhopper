@@ -46,4 +46,4 @@ jobs:
         run: echo "Tu es safe !"
       - name: Get rickroll
         if: steps.tests.outputs.exit_code != '0'
-        run: eco "Tu viens de te faire rickroll."
+        run: echo "Tu viens de te faire rickroll."
