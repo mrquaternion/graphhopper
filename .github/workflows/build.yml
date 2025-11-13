@@ -129,5 +129,6 @@ jobs:
 
       - name: pitest report for a class from web
         run: |
+          cd ..
           cd web
           mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
