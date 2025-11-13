@@ -119,15 +119,8 @@ jobs:
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
             )
           done
-      
-      
-      
-      
-      
-      
-      
 
       - name: pitest report for a class from core
         run: |
-          cd core
-          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.config.Profile" -DtargetTests="com.graphhopper.core.*Test"
+          cd web
+          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
