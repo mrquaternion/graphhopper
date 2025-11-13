@@ -46,12 +46,12 @@ jobs:
       - name: pitest report for modified
         id: pit
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
           echo "Changes Java files:"
           echo "$CHANGED_FILES"
           
-          if [ -z "$CHANGED_FILES" ]; then
+          if [[ -z "$CHANGED_FILES" ]]; then
             echo "No Java files identified"
             exit 0
           fi
@@ -60,7 +60,7 @@ jobs:
           declare -A MODULE_TO_CLASSES
           
           while IFS= read -r FILE; do
-            MODULE_DIR="${FILE%%/*}"}
+            MODULE_DIR="${FILE%%/*}"
           
             # On obtient le nom du module de chaque fichier
         
@@ -72,7 +72,7 @@ jobs:
             if [[ "$FILE" == $PREFIX_MAIN* ]]; then
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
             elif [[ "$FILE" == $PREFIX_TEST* ]]; then
-              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
+              continue
             else
               continue
             fi
@@ -89,13 +89,29 @@ jobs:
           
           # les chemins pour la commande mvn pitest sont créés
           
+          # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
           for MODULE_DIR in "${!MODULE_TO_CLASSES[@]}"; do
             TARGET_CLASSES="${MODULE_TO_CLASSES[$MODULE_DIR]}"
             
+            case "$MODULE_DIR" in
+              graphhopper-core)
+                TEST_PATTERN="com.graphhopper.core.*Test"
+                ;;
+              graphhopper-navigation)
+                TEST_PATTERN="com.graphhopper.navigation.*Test"
+                ;;
+              graphhopper-web-api)
+                TEST_PATTERN="com.graphhopper.web.*Test"
+                ;;
+              *)
+                TEST_PATTERN="*Test"
+                ;;
+            esac
+          
             (
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DoutputFormats=HTML
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
             )
           done
       
