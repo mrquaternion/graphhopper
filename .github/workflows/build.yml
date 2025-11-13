@@ -48,6 +48,84 @@ jobs:
       - name: Fetch full history
         run: git fetch --unshallow || git fetch --all --tags
 
+      - name: initial pitest report
+        id: init
+        run: |
+          git checkout ${{ github.event.before }}
+        
+          mvn -1 DskipTests install
+        
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
+        
+          if [[ -z "$CHANGED_FILES" ]]; then
+            echo "No Java files identified"
+            echo "score=100" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          
+          declare -A MODULE_TO_CLASSES
+          
+          while IFS= read -r FILE; do
+            MODULE_DIR="${FILE%%/*}"
+          
+            # On obtient le nom du module de chaque fichier
+          
+            # on construit les deux chemins pour identifier si c'est un test ou un main
+            PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
+            PREFIX_TEST="${MODULE_DIR}/src/test/java/"
+          
+            # on prend le chemin sans le prefix (e.i ..du répertoire)
+            if [[ "$FILE" == $PREFIX_MAIN* ]]; then
+              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
+            elif [[ "$FILE" == $PREFIX_TEST* ]]; then
+              continue
+            else
+              continue
+            fi
+          
+            PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
+            PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
+          
+            if [ -z "${MODULE_TO_CLASSES[$MODULE_DIR]}" ]; then
+              MODULE_TO_CLASSES[$MODULE_DIR]="$PATH_FOR_PIT"
+            else
+              MODULE_TO_CLASSES[$MODULE_DIR]="${MODULE_TO_CLASSES[$MODULE_DIR]},$PATH_FOR_PIT"
+            fi
+          done <<< "$CHANGED_FILES"
+          
+          # les chemins pour la commande mvn pitest sont créés
+          
+          # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
+          for MODULE_DIR in "${!MODULE_TO_CLASSES[@]}"; do
+            TARGET_CLASSES="${MODULE_TO_CLASSES[$MODULE_DIR]}"
+          
+            case "$MODULE_DIR" in
+              graphhopper-core)
+                TEST_PATTERN="com.graphhopper.core.*Test"
+                ;;
+              graphhopper-navigation)
+                TEST_PATTERN="com.graphhopper.navigation.*Test"
+                ;;
+              graphhopper-web-api)
+                TEST_PATTERN="com.graphhopper.web.*Test"
+                ;;
+              *)
+                TEST_PATTERN="*Test"
+                ;;
+            esac
+          
+            (
+              cd "$MODULE_DIR"
+              echo "$TARGET_CLASSES"
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+              SCORE=$(grep -oP 'Mutation score[^0-9]*\K[0-9]+' target/pit-reports/*/index.html | head -n 1)
+              echo "Le score est $SCORE"
+              echo "score=$SCORE" >> $GITHUB_OUTPUT
+            )
+          done
+          
+
       - name: pitest report for modified
         id: pit
         run: |
@@ -60,7 +138,6 @@ jobs:
             echo "No Java files identified"
             exit 0
           fi
-          
           
           declare -A MODULE_TO_CLASSES
           
