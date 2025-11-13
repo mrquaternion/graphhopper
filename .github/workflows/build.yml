@@ -127,9 +127,7 @@ jobs:
       
       
 
-      - name: pitest report for a class from web
+      - name: pitest report for a class from core
         run: |
-          pwd
-          cd web
-          pwd
-          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
+          cd core
+          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.config.Profile" -DtargetTests="com.graphhopper.core.*Test"
