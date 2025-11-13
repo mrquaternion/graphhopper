@@ -131,4 +131,5 @@ jobs:
         run: |
           pwd
           cd web
+          pwd
           mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
