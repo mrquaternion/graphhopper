@@ -43,11 +43,6 @@ jobs:
       - name: build external modules
         run: mvn -q -DskipTests install
 
-      - name: Checkout history
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: pitest report for modified
         id: pit
         run: |
@@ -120,7 +115,7 @@ jobs:
             )
           done
 
-      - name: pitest report for a class from core
+      - name: pitest report for a class from web
         run: |
           cd web
           mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
