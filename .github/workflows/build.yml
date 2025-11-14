@@ -49,7 +49,7 @@ jobs:
         run: git fetch --unshallow || git fetch --all --tags
 
       - name: initial pitest report
-        id: init
+        id: old
         run: |
           git checkout ${{ github.event.before }}
           mvn -q -DskipTests install
@@ -117,14 +117,44 @@ jobs:
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
-              echo "score=$SCORE" >> $GITHUB_OUTPUT
+              echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
+              case "$MODULE_DIR" in
+                core)
+                  echo "core=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                navigation)
+                  echo "navigation=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                example)
+                  echo "example=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                map-matching)
+                  echo "map-matching=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                reader-gtfs)
+                  echo "reader-gtfs=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                tools)
+                  echo "tools=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                web)
+                  echo "web=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                web-api)
+                  echo "web-api=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                web-bundle)
+                  echo "web-bundle=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+                *)
+                  echo "idk=$SCORE" >> $GITHUB_OUTPUT
+                  ;;
+              esac
             )
-
           done
-          # Attention : on réécrit le score plusieurs fois...
 
       - name: pitest report for modified
-        id: pit
+        id: new
         run: |
           git checkout ${{ github.sha }}
           mvn -q -DskipTests install
@@ -193,6 +223,10 @@ jobs:
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
+              if [ "$SCORE" -lt "${{ steps.old.outputs.core }}" ]; then
+                echo "Erreur : Le score de mutation a baissé" >&2
+                exit 1
+              fi
             )
 
           done
