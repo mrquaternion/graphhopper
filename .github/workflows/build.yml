@@ -290,3 +290,4 @@ jobs:
           elif [ "${{ steps.new.outputs.idk }}" -lt "${{ steps.old.outputs.idk }}" ]; then
             echo "Erreur : Le score de mutation a baissé dans le module quelconque" >&2
             exit 1
+          fi
