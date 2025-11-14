@@ -63,8 +63,6 @@ jobs:
           fi
           echo "trace A"
           
-          declare -A MODULE_TO_CLASSES
-          
           # hashmap qui contiendra les modules qui doivent être explorés
           declare -A MODULES_AFFECTED
           
@@ -94,6 +92,7 @@ jobs:
         
             # On maintient les classes précédentes, mais on ajoute une classe (du même module)
             MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]}, $PATH_FOR_PIT"
+            echo "LES CHEMINS POUR CORE => $MODULES_AFFECTED[$MODULE_DIR]"
             
           done <<< "$CHANGED_FILES"
 
@@ -120,7 +119,7 @@ jobs:
             
             # POUR CE MODULE PRÉCIS!!!
             echo "test pattern est : $TEST_PATTERN"
-            echo "class pattern est : $TARGET_CLASSS"
+            echo "class pattern est : $TARGET_CLASS"
         
             (
               cd "$MODULE_DIR"
