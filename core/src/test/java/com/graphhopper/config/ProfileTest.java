@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ProfileTest {/
+public class ProfileTest {
     Profile instance = new Profile("name");
 
     @Test
