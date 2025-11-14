@@ -45,9 +45,6 @@ jobs:
       - name: build external modules
         run: mvn -q -DskipTests install
 
-      - name: Fetch full history
-        run: git fetch --unshallow || git fetch --all --tags
-
       - name: initial pitest report
         id: init
         run: |
