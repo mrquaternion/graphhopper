@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
     - https://www.baeldung.com/mockito-argumentcaptor
  */
 @ExtendWith(MockitoExtension.class)
-public class NavigateResourceTest {/**
+public class NavigateResourceTest {
 
     @Mock private GraphHopper graphHopper; // commun
     @Mock private TranslationMap translationMap; // commun
@@ -125,5 +125,5 @@ public class NavigateResourceTest {/**
         bearings = NavigateResource.getBearing(";100,1;;");
         assertEquals(4, bearings.size());
         assertEquals(100, bearings.get(1), .1);
-    }*/
+    }
 }
