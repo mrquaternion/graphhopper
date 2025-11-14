@@ -75,7 +75,7 @@ jobs:
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
             elif [[ "$FILE" == $PREFIX_TEST* ]]; then
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
-              PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}.java}
+              PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}.java"
             else
               continue
             fi
