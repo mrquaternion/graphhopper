@@ -65,8 +65,7 @@ jobs:
           
           declare -A MODULE_TO_CLASSES
           echo "trace A-A"
-          # CHANGED_FILES doit être changé par FILE
-          while IFS= read -r CHANGED_FILES; do
+          while IFS= read -r FILE; do
             MODULE_DIR="${FILE%%/*}"
           
             # On obtient le nom du module de chaque fichier
