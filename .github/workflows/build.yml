@@ -64,7 +64,7 @@ jobs:
           echo "trace A"
           
           declare -A MODULE_TO_CLASSES
-          
+          echo "trace A-A"
           while IFS= read -r FILE; do
             MODULE_DIR="${FILE%%/*}"
           
@@ -92,7 +92,7 @@ jobs:
               MODULE_TO_CLASSES[$MODULE_DIR]="${MODULE_TO_CLASSES[$MODULE_DIR]},$PATH_FOR_PIT"
             fi
           done <<< "$CHANGED_FILES"
-          
+          echo "Trace A.B"
           # les chemins pour la commande mvn pitest sont créés
           
           # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
@@ -125,6 +125,7 @@ jobs:
           echo "Trace B"
           done
           # Attention : on réécrit le score plusieurs fois...
+          echo "Trace A.C"
           
 
       - name: pitest report for modified
