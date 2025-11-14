@@ -98,4 +98,8 @@ public class GraphSpeedMeasurement {
         for (String res : result)
             System.out.println(res);
     }
+
+    public void useless() {
+        // this method does nothing, but it's still a modification!!!
+    }
 }
