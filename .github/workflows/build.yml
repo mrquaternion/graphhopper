@@ -100,7 +100,7 @@ jobs:
             TARGET_CLASSES="${MODULE_TO_CLASSES[$MODULE_DIR]}"
           
             case "$MODULE_DIR" in
-              graphhopper-core)
+              core)
                 TEST_PATTERN="com.graphhopper.core.*Test"
                 ;;
               graphhopper-navigation)
