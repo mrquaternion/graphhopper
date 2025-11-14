@@ -63,7 +63,7 @@ jobs:
           
           while IFS= read -r FILE; do
             MODULE_DIR="${FILE%%/*}"
-          
+            echo "Trace => while loop, le nom du module est $MODULE_DIR"
             # On obtient le nom du module de chaque fichier
         
             # on construit les deux chemins pour identifier si c'est un test ou un main
@@ -81,7 +81,7 @@ jobs:
           
             PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
             PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
-          
+            echo "Trace => while loop, le nom de l'argument pour pit est $PATH_FOR_PIT"
             if [ -z "${MODULE_TO_CLASSES[$MODULE_DIR]}" ]; then
               MODULE_TO_CLASSES[$MODULE_DIR]="$PATH_FOR_PIT"
             else
