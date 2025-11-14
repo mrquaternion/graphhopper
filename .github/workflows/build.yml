@@ -103,7 +103,7 @@ jobs:
         
             case "$MODULE_DIR" in
               core)
-                TEST_PATTERN="com.graphhopper.core.*Test"
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
               graphhopper-navigation)
                 TEST_PATTERN="com.graphhopper.navigation.*Test"
@@ -115,6 +115,9 @@ jobs:
                 TEST_PATTERN="*Test"
                 ;;
             esac
+            
+            echo "test pattern est : $TEST_PATTERN"
+            echo "class pattern est : $TARGET_CLASSS"
         
             (
               cd "$MODULE_DIR"
