@@ -120,13 +120,13 @@ jobs:
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
               SCORE=$(grep -oP 'Mutation score[^0-9]*\K[0-9]+' target/pit-reports/*/index.html | head -n 1)
               echo "Le score est $SCORE"
+              echo "Trace D"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
             )
-          echo "Trace B"
+            echo "Trace B"
           done
           # Attention : on réécrit le score plusieurs fois...
           echo "Trace A.C"
-          
 
       - name: pitest report for modified
         id: pit
