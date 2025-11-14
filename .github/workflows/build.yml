@@ -64,12 +64,15 @@ jobs:
           echo "trace A"
           
           declare -A MODULE_TO_CLASSES
-          echo "trace A-A"
+          
+          # hashmap qui contiendra les modules qui doivent être explorés
+          declare -A MODULES_AFFECTED
           
           while IFS= read -r FILE; do
-            MODULE_DIR="${FILE%%/*}"
-          
             # On obtient le nom du module de chaque fichier
+            MODULE_DIR="${FILE%%/*}"
+            # On met rien pour l'instant...
+            MODULES_AFFECTED[$MODULE_DIR]=""
           
             # on construit les deux chemins pour identifier si c'est un test ou un main
             PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
@@ -84,38 +87,38 @@ jobs:
             else
               continue
             fi
-        
+            
+            # chemin (sert à l'argument de classe pr la commande pitest)
             PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
             PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
         
-            if [ -z "${MODULE_TO_CLASSES[$MODULE_DIR]}" ]; then
-              MODULE_TO_CLASSES[$MODULE_DIR]="$PATH_FOR_PIT"
-            else
-              MODULE_TO_CLASSES[$MODULE_DIR]="${MODULE_TO_CLASSES[$MODULE_DIR]},$PATH_FOR_PIT"
-            fi
+            # On maintient les classes précédentes, mais on ajoute une classe (du même module)
+            MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]}, $PATH_FOR_PIT"
+            
           done <<< "$CHANGED_FILES"
-          echo "Trace A.B"
+
           # les chemins pour la commande mvn pitest sont créés
         
           # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
-          for MODULE_DIR in "${!MODULE_TO_CLASSES[@]}"; do
-            TARGET_CLASSES="${MODULE_TO_CLASSES[$MODULE_DIR]}"
+          for MODULE_DIR in "${!MODULES_AFFECTED[@]}"; do
+            TARGET_CLASSES="${MODULES_AFFECTED[$MODULE_DIR]}"
         
             case "$MODULE_DIR" in
               core)
                 TEST_PATTERN="com.graphhopper.*Test"
                 ;;
               graphhopper-navigation)
-                TEST_PATTERN="com.graphhopper.navigation.*Test"
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
               graphhopper-web-api)
-                TEST_PATTERN="com.graphhopper.web.*Test"
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
               *)
                 TEST_PATTERN="*Test"
                 ;;
             esac
             
+            # POUR CE MODULE PRÉCIS!!!
             echo "test pattern est : $TEST_PATTERN"
             echo "class pattern est : $TARGET_CLASSS"
         
@@ -125,13 +128,11 @@ jobs:
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
-              echo "Trace D"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
             )
-            echo "Trace B"
+
           done
           # Attention : on réécrit le score plusieurs fois...
-          echo "Trace A.C"
 
       - name: pitest report for modified
         id: pit
@@ -186,15 +187,15 @@ jobs:
             
             case "$MODULE_DIR" in
               core)
-                TEST_PATTERN="com.graphhopper.core.*Test"
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
-              graphhopper-navigation)
-                TEST_PATTERN="com.graphhopper.navigation.*Test"
+                navigation)
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
-              graphhopper-web-api)
-                TEST_PATTERN="com.graphhopper.web.*Test"
+                web-api)
+                TEST_PATTERN="com.graphhopper.*Test"
                 ;;
-              *)
+                *)
                 TEST_PATTERN="*Test"
                 ;;
             esac
@@ -205,8 +206,3 @@ jobs:
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
             )
           done
-
-      - name: pitest report for a class from web
-        run: |
-          cd web
-          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="com.graphhopper.application.cli.MatchCommand" -DtargetTests="com.graphhopper.web.*Test"
