@@ -69,8 +69,6 @@ jobs:
           while IFS= read -r FILE; do
             # On obtient le nom du module de chaque fichier
             MODULE_DIR="${FILE%%/*}"
-            # On met rien pour l'instant...
-            MODULES_AFFECTED[$MODULE_DIR]=""
           
             # on construit les deux chemins pour identifier si c'est un test ou un main
             PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
@@ -91,7 +89,13 @@ jobs:
             PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
         
             # On maintient les classes précédentes, mais on ajoute une classe (du même module)
-            MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]}, $PATH_FOR_PIT"
+          
+            # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
+            if [ -z "${MODULES_AFFECTED[$MODULE_DIR]}" ]; then
+              MODULES_AFFECTED[$MODULE_DIR]="$PATH_FOR_PIT"
+            else
+              MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
+            fi
             echo "LES CHEMINS POUR CORE => $MODULES_AFFECTED[$MODULE_DIR]"
             
           done <<< "$CHANGED_FILES"
