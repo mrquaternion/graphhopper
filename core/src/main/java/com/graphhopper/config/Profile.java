@@ -38,7 +38,7 @@ import static java.util.Collections.emptyList;
  * @see CHProfile
  * @see LMProfile
  */
-public class Profile {
+public class Profile {/**
     private String name;
     private TurnCostsConfig turnCostsConfig;
     private String weighting = "custom";
@@ -158,4 +158,4 @@ public class Profile {
         return Helper.staticHashCode(createContentString(excludedHints));
     }
 
-}
+*/}
