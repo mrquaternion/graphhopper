@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Karich
  */
-public class GHUtilityTest {/**
+public class GHUtilityTest {
     final int DEFAULT_SIZE = 100;
 
     public record Node(int nodeId, double lat, double lon, double ele) { }
@@ -231,5 +231,5 @@ public class GHUtilityTest {/**
             assertEquals(1, GHUtility.getAdjNode(graph, eid1, 1));
             assertEquals(2, GHUtility.getAdjNode(graph, eid1, 2));
         }
-    }*/
+    }
 }
