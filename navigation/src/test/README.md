@@ -8,7 +8,7 @@ Pour forcer l'échec du workflow "Build" dans le cas où le score de mutation ba
 2. *Modified pitest report* : Calcule le score de mutation après le commit.
 3. *Comparison* : Compare les scores de mutation et lance une erreur si le score de la seconde étape est plus petit que celui de la première étape.
 
-### Exécution de pitest et justification des cas de modifications
+### Modifications apportées et justifications
 Nous avons commencé par ajouter pitest à tous les modules de Graphhopper (il faut analyser le score de mutation par module). Il y a quelques problèmes que nous avons identifiés :
 - On ne peut pas lancer pitest pour un module entier comme core : il y a une limite de 6 heures pour un workflow (nous l'avons appris en essayant). Les tests de mutations consomment beaucoup de ressources. Il faut viser des classes précises
 - Identifier quelles classes viser n'est pas toujours évident. Il y a quelques cas à considérer.
@@ -30,6 +30,8 @@ On lance ensuite pitest sur chacun des modules (ayant des fichiers changés) et 
 #### Comparaison
 Chacun des modules est comparé. Aussitôt qu'un seul module enregistre une baisse du score de mutation, le build échoue.
 
+### Validation
+Pour valider, nous nous sommes servis de notre travail effectué dans le cadre de la tâche 2. Lors de cette tâche, nous avions à ajouter des cas de tests qui augmentaient le score de mutation. Pour valider la Github Action, il suffit donc de retirer (ou mettre en commentaire) les tests qu'on a ajouté (et qu'on sait qu'ils font augmenter le score de mutation). On s'attend alors à ce que le workflow échoue. En ajoutant les tests à nouveau, le workflow doit passer car le score de mutation augmente.
 ## Tests unitaires avec Mockito — Documentation
 
 
