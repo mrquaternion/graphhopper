@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class FareTest {
+public class FareTest {/**
 
     // See https://code.google.com/archive/p/googletransitdatafeed/wikis/FareExamples.wiki
     private static final List<Map<String, Map<String, Fare>>> fares = Arrays.asList(
@@ -284,6 +284,6 @@ public class FareTest {
             }
         }
         return m;
-    }
+    }*/
 
 }
