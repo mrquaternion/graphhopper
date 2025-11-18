@@ -24,6 +24,7 @@ import java.util.Objects;
 public class Observation {
     private GHPoint point;
     private double accumulatedLinearDistanceToPrevious;
+    private double falseargumenttotest;
 
     public Observation(GHPoint p) {
         this.point = p;
