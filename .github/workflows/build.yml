@@ -75,14 +75,19 @@ jobs:
             PREFIX_TEST="${MODULE_DIR}/src/test/java/"
           
             # on prend le chemin sans le prefix (e.i ..du répertoire)
+            
             if [[ "$FILE" == $PREFIX_MAIN* ]]; then
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
             elif [[ "$FILE" == $PREFIX_TEST* ]]; then
-              if [[ "$FILE" != *Test.java ]]; then
+              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
+              PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%.java}"
+              PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test}.java"
+          
+              POTENTIAL_CLASS="$PREFIX_MAIN$PATH_WITHOUT_PREFIX"
+              if [[ ! -f "$POTENTIAL_CLASS" ]]; then
                 PATH_WITHOUT_PREFIX="com.graphhopper.*"
               else
-                PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
-                PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}"
+                PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%.java}"
               fi
             else
               continue
@@ -161,15 +166,15 @@ jobs:
       - name: pitest report for modified
         id: new
         run: |
-          git checkout ${{ github.sha }}
+          git checkout ${{ github.event.before }}
           mvn -q -DskipTests install
           
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
           if [[ -z "$CHANGED_FILES" ]]; then
-            echo "No Java files identified"
-            echo "score=100" >> $GITHUB_OUTPUT
-            exit 0
+          echo "No Java files identified"
+          echo "score=100" >> $GITHUB_OUTPUT
+          exit 0
           fi
           echo "trace A"
           
@@ -177,41 +182,46 @@ jobs:
           declare -A MODULES_AFFECTED
           
           while IFS= read -r FILE; do
-            # On obtient le nom du module de chaque fichier
-            MODULE_DIR="${FILE%%/*}"
+          # On obtient le nom du module de chaque fichier
+          MODULE_DIR="${FILE%%/*}"
           
-            # on construit les deux chemins pour identifier si c'est un test ou un main
-            PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
-            PREFIX_TEST="${MODULE_DIR}/src/test/java/"
+          # on construit les deux chemins pour identifier si c'est un test ou un main
+          PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
+          PREFIX_TEST="${MODULE_DIR}/src/test/java/"
           
-            # on prend le chemin sans le prefix (e.i ..du répertoire)
-            if [[ "$FILE" == $PREFIX_MAIN* ]]; then
-              PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
-            elif [[ "$FILE" == $PREFIX_TEST* ]]; then
-              if [[ "$FILE" != *Test.java ]]; then
-                PATH_WITHOUT_PREFIX="com.graphhopper.*"
-              else
-                PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
-                PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}"
-              fi
-            else
-              continue
-            fi
+          # on prend le chemin sans le prefix (e.i ..du répertoire)
           
-            # chemin (sert à l'argument de classe pr la commande pitest)
-            PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
-            PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
+          if [[ "$FILE" == $PREFIX_MAIN* ]]; then
+          PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
+          elif [[ "$FILE" == $PREFIX_TEST* ]]; then
+          PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
+          PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%.java}"
+          PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test}.java"
           
-            # On maintient les classes précédentes, mais on ajoute une classe (du même module)
+          POTENTIAL_CLASS="$PREFIX_MAIN$PATH_WITHOUT_PREFIX"
+          if [[ ! -f "$POTENTIAL_CLASS" ]]; then
+          PATH_WITHOUT_PREFIX="com.graphhopper.*"
+          else
+          PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%.java}"
+          fi
+          else
+          continue
+          fi
           
-            # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
-            if [ -z "${MODULES_AFFECTED[$MODULE_DIR]}" ]; then
-              MODULES_AFFECTED[$MODULE_DIR]="$PATH_FOR_PIT"
-            elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "com.graphhopper.*" ]]; then
-              continue
-            else
-              MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
-            fi
+          # chemin (sert à l'argument de classe pr la commande pitest)
+          PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
+          PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
+          
+          # On maintient les classes précédentes, mais on ajoute une classe (du même module)
+          
+          # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
+          if [ -z "${MODULES_AFFECTED[$MODULE_DIR]}" ]; then
+          MODULES_AFFECTED[$MODULE_DIR]="$PATH_FOR_PIT"
+          elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "com.graphhopper.*" ]]; then
+          continue
+          else
+          MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
+          fi
           
           done <<< "$CHANGED_FILES"
 
@@ -219,53 +229,53 @@ jobs:
           
           # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
           for MODULE_DIR in "${!MODULES_AFFECTED[@]}"; do
-            TARGET_CLASSES="${MODULES_AFFECTED[$MODULE_DIR]}"
-            TEST_PATTERN="com.graphhopper.*Test"
+          TARGET_CLASSES="${MODULES_AFFECTED[$MODULE_DIR]}"
+          TEST_PATTERN="com.graphhopper.*Test"
           
-            # POUR CE MODULE PRÉCIS!!!
-            echo "test pattern est : $TEST_PATTERN"
-            echo "class pattern est : $TARGET_CLASSES"
+          # POUR CE MODULE PRÉCIS!!!
+          echo "test pattern est : $TEST_PATTERN"
+          echo "class pattern est : $TARGET_CLASSES"
           
-            (
-              cd "$MODULE_DIR"
-              echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
-              SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
-              echo "Le score est $SCORE"
-              echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
-              case "$MODULE_DIR" in
-                core)
-                  echo "core=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                navigation)
-                  echo "navigation=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                example)
-                  echo "example=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                map-matching)
-                  echo "map-matching=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                reader-gtfs)
-                  echo "reader-gtfs=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                tools)
-                  echo "tools=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                web)
-                  echo "web=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                web-api)
-                  echo "web-api=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                web-bundle)
-                  echo "web-bundle=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-                *)
-                  echo "idk=$SCORE" >> $GITHUB_OUTPUT
-                  ;;
-              esac
-            )
+          (
+          cd "$MODULE_DIR"
+          echo "$TARGET_CLASSES"
+          mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+          SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
+          echo "Le score est $SCORE"
+          echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
+          case "$MODULE_DIR" in
+          core)
+          echo "core=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          navigation)
+          echo "navigation=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          example)
+          echo "example=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          map-matching)
+          echo "map-matching=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          reader-gtfs)
+          echo "reader-gtfs=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          tools)
+          echo "tools=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          web)
+          echo "web=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          web-api)
+          echo "web-api=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          web-bundle)
+          echo "web-bundle=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          *)
+          echo "idk=$SCORE" >> $GITHUB_OUTPUT
+          ;;
+          esac
+          )
           done
 
       - name: comparison
