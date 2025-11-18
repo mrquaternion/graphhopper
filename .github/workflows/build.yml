@@ -53,9 +53,9 @@ jobs:
         run: |
           git checkout ${{ github.event.before }}
           mvn -q -DskipTests install
-        
+          
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
-        
+          
           if [[ -z "$CHANGED_FILES" ]]; then
             echo "No Java files identified"
             echo "score=100" >> $GITHUB_OUTPUT
@@ -73,7 +73,7 @@ jobs:
             # on construit les deux chemins pour identifier si c'est un test ou un main
             PREFIX_MAIN="${MODULE_DIR}/src/main/java/"
             PREFIX_TEST="${MODULE_DIR}/src/test/java/"
-        
+          
             # on prend le chemin sans le prefix (e.i ..du répertoire)
             if [[ "$FILE" == $PREFIX_MAIN* ]]; then
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
@@ -83,11 +83,11 @@ jobs:
             else
               continue
             fi
-            
+          
             # chemin (sert à l'argument de classe pr la commande pitest)
             PATH_FOR_PIT="${PATH_WITHOUT_PREFIX%.java}"
             PATH_FOR_PIT="${PATH_FOR_PIT//\//.}"
-        
+          
             # On maintient les classes précédentes, mais on ajoute une classe (du même module)
           
             # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
@@ -97,24 +97,24 @@ jobs:
               MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
             fi
             echo "LES CHEMINS POUR CORE => $MODULES_AFFECTED[$MODULE_DIR]"
-            
+          
           done <<< "$CHANGED_FILES"
 
           # les chemins pour la commande mvn pitest sont créés
-        
+          
           # il manque des patterns, mais on va essayer si ça marche d'abord comme ça.
           for MODULE_DIR in "${!MODULES_AFFECTED[@]}"; do
             TARGET_CLASSES="${MODULES_AFFECTED[$MODULE_DIR]}"
             TEST_PATTERN="com.graphhopper.*Test"
-            
+          
             # POUR CE MODULE PRÉCIS!!!
             echo "test pattern est : $TEST_PATTERN"
             echo "class pattern est : $TARGET_CLASSES"
-        
+          
             (
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage  -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
               echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
@@ -219,7 +219,7 @@ jobs:
             (
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage  -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
               echo "score=$SCORE" >> $GITHUB_OUTPUT
