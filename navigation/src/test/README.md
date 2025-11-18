@@ -1,3 +1,32 @@
+# Modification de la Github Action
+
+Pour forcer l'échec du workflow "Build" dans le cas où le score de mutation baisse, nous utilisons trois "steps" (étapes) :
+1. *Initial pitest report* : Calcule le score de mutation avant le commit.
+2. *Modified pitest report* : Calcule le score de mutation après le commit.
+3. *Comparison* : Compare les scores de mutation et lance une erreur si le score de la seconde étape est plus petit que celui de la première étape.
+
+## Exécution de pitest et justification des cas de modifications
+Nous avons commencé par ajouter pitest à tous les modules de Graphhopper (il faut analyser le score de mutation par module). Il y a quelques problèmes que nous avons identifiés :
+- On ne peut pas lancer pitest pour un module entier comme core : il y a une limite de 6 heures pour un workflow (nous l'avons appris en essayant). Les tests de mutations consomment beaucoup de ressources. Il faut viser des classes précises
+- Identifier quelles classes viser n'est pas toujours évident. Il y a quelques cas à considérer.
+    - si le fichier modifié est une classe de production (pas un fichier test), alors on ne test (test de mutation) que cette classe.
+    - si le fichier modifié est une classe test avec comme nom {production_class_name}Test.java, alors on peut facilement trouver la classe associée en retirant "Test". Mais il faut quand même (par sécurité) s'assurer que cette classe existe, faute de quoi on a recours à la solution du cas suivant.
+    - si le fichier modifié est une classe test qui ne se nomme pas "{production_class_name}Test.java" **OU** si ce *pattern* de nom est respecté, mais qu'il n'existe aucune classe de production avec ce nom, alors on ne peut pas identifier à coup sûr à quelle classe de production cette classe test est associée. On lance donc pitest sur toutes les classes de ce module. Ce troisième cas est notamment pertinent pour les classes de tests d'intégration (IT); et on en retrouve notamment dans reader-gtfs.
+    - Il y a aussi le cas des fichiers non `.java`. Aucune analyse de mutation n'est exécutée pour ces fichiers modifiés (ex: les readme).
+
+### Exécution de pitest
+Pour les étapes 1 et 2, on fait exactement les mêmes commandes, sauf pour la première ligne :
+- `git checkout ${{ github.event.before }}` pour le rapport initial afin de voir le projet avant le commit qui vient d'être envoyé.
+- `git checkout ${{ github.event.sha }}` pour le rapport après le commit qui vient d'être envoyé.
+
+On identifie les fichiers modifiés, et on se sert d'une hashmap où la clé correspond au module et la valeur correspond aux classes à viser par l'analyse de mutation. La détermination de cette valeur (une *string*) dépend des cas énoncés plus haut (classe visée facilement identifiable ou impossible à identifier). Cette valeur servira par la suite comme argument de la commande pour lancer pitest dans le module associé (la clé associée à cette valeur).
+S'il est impossible d'identifier au moins une classe dans ce module, l'argument (la valeur) sera "com.graphhopper.*" (ce qui signifie "vise toutes les classes de ce module").
+
+On lance ensuite pitest sur chacun des modules (ayant des fichiers changés) et le résultat (intercepté en analysant le rapport de mutation par *parsing*) est stocké dans une variable ayant comme identifiant le nom du module en question.  
+
+### Comparaison
+Chacun des modules est comparé. Aussitôt qu'un seul module enregistre une baisse du score de mutation, le build échoue.
+
 # Tests unitaires avec Mockito — Documentation
 ### Mathias La Rochelle & Marcelo Amarilla
 
