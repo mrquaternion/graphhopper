@@ -45,7 +45,7 @@ certaines). L'indice qui nous a facilité cette tâche était l'annotation `@Inj
 de Jakarta. Grâce à la fonctionnalité "Search Everywhere" de IntelliJ, nous avons 
 pu facilement trouver les classes qui importent ce module.
 
-## Les mocks
+### Les mocks
 Dans la classe de test `NavigateResourceTest`, nous avons créé des *mocks* pour :
 
 - `GraphHopper`
@@ -60,7 +60,7 @@ il est possible de le garder en tant que *mock*, mais nous aurions pu stubber la
 méthode `asPMap()`. Cependant, ayant de la difficulté à comprendre son usage, 
 nous avons préféré l'instancier.
 
-## Les stubs
+### Les stubs
 Les appels `when(...).thenReturn(...)` constituent des *stubs*, permettant de 
 définir le comportement attendu des *mocks* que nous avons défini. Dans notre cas :
 
@@ -72,7 +72,7 @@ tests, notamment ceux de GraphHopper et EncodingManager.
 `graphHopper.getEncodingManager()` et `encodingManager.hasEncodedValue(...)`, qui
 permettent d'éviter des erreurs du style `NullPointerException`.
 
-## Résumé du comportement des tests
+### Résumé du comportement des tests
 - `doGetTest()` vérifie la logique de parsing de l’URL et s’assure que les coordonnées 
 extraites du chemin URI sont correctes. Vérifie aussi qu'un appel GET valide retourne 
 une réponse HTTP 200.
