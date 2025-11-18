@@ -79,7 +79,7 @@ jobs:
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
             elif [[ "$FILE" == $PREFIX_TEST* ]]; then
               if [[ "$FILE" != *Test.java ]]; then
-                PATH_WITHOUT_PREFIX="*"
+                PATH_WITHOUT_PREFIX="com.graphhopper.*"
               else
                 PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
                 PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}"
@@ -97,7 +97,7 @@ jobs:
             # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
             if [ -z "${MODULES_AFFECTED[$MODULE_DIR]}" ]; then
               MODULES_AFFECTED[$MODULE_DIR]="$PATH_FOR_PIT"
-            elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "*" ]]; then
+            elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "com.graphhopper.*" ]]; then
               continue
             else
               MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
@@ -189,7 +189,7 @@ jobs:
               PATH_WITHOUT_PREFIX="${FILE#$PREFIX_MAIN}"
             elif [[ "$FILE" == $PREFIX_TEST* ]]; then
               if [[ "$FILE" != *Test.java ]]; then
-                PATH_WITHOUT_PREFIX="*"
+                PATH_WITHOUT_PREFIX="com.graphhopper.*"
               else
                 PATH_WITHOUT_PREFIX="${FILE#$PREFIX_TEST}"
                 PATH_WITHOUT_PREFIX="${PATH_WITHOUT_PREFIX%Test.java}"
@@ -207,7 +207,7 @@ jobs:
             # NE PAS SUPPRIMER, L'INITIALISATION "" CAUSE PROBLÈME, GARDER COMME ÇA
             if [ -z "${MODULES_AFFECTED[$MODULE_DIR]}" ]; then
               MODULES_AFFECTED[$MODULE_DIR]="$PATH_FOR_PIT"
-            elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "*" ]]; then
+            elif [[ "${MODULES_AFFECTED[$MODULE_DIR]}" == "com.graphhopper.*" ]]; then
               continue
             else
               MODULES_AFFECTED[$MODULE_DIR]="${MODULES_AFFECTED[$MODULE_DIR]},$PATH_FOR_PIT"
