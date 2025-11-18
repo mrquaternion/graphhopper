@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.ToDoubleFunction;
 
-public class UrbanDensityCalculator {/**
+public class UrbanDensityCalculator {
     private static final Logger logger = LoggerFactory.getLogger(UrbanDensityCalculator.class);
 
-
+    /**
      * Calculates the urban density (rural/residential/city) for all edges of the graph.
      * First a weighted road density is calculated for every edge to determine whether it belongs to a residential area.
      * In a second step very dense residential areas are classified as 'city'.
@@ -41,7 +41,7 @@ public class UrbanDensityCalculator {/**
      * @param cityAreaRadius             in meters, see residentialAreaRadius
      * @param cityAreaSensitivity        similar to residentialAreaSensitivity, but for the city classification
      * @param threads                    number of threads used to calculate the road densities
-
+     */
     public static void calcUrbanDensity(Graph graph, EnumEncodedValue<UrbanDensity> urbanDensityEnc,
                                         EnumEncodedValue<RoadClass> roadClassEnc, BooleanEncodedValue roadClassLinkEnc,
                                         double residentialAreaRadius, double residentialAreaSensitivity,
@@ -101,6 +101,6 @@ public class UrbanDensityCalculator {/**
         for (int edge = 0; edge < isCity.length; edge++)
             if (isCity[edge])
                 graph.getEdgeIteratorState(edge, Integer.MIN_VALUE).set(urbanDensityEnc, UrbanDensity.CITY);
-    }*/
+    }
 
 }
