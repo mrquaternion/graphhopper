@@ -102,4 +102,5 @@ public class UrbanDensityCalculator {
             if (isCity[edge])
                 graph.getEdgeIteratorState(edge, Integer.MIN_VALUE).set(urbanDensityEnc, UrbanDensity.CITY);
     }
+
 }
