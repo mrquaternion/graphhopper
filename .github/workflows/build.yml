@@ -48,11 +48,14 @@ jobs:
       - name: Fetch full history
         run: git fetch --unshallow || git fetch --all --tags
 
+      - name: go back
+        uses : actions/checkout@v4
+        with:
+          ref: ${{ github.event.before }}
+
       - name: initial pitest report
-        uses: actions/checkout@v4
         id: old
         run: |
-          git checkout ${{ github.event.before }}
           
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
@@ -164,13 +167,14 @@ jobs:
             )
           done
 
+      - name: come back
+        uses : actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
       - name: pitest report for modified
-        uses: actions/checkout@v4
         id: new
         run: |
-          git checkout ${{ github.event.sha }}
-
-          
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
           if [[ -z "$CHANGED_FILES" ]]; then
