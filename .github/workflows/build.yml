@@ -49,6 +49,7 @@ jobs:
         run: git fetch --unshallow || git fetch --all --tags
 
       - name: initial pitest report
+        uses: actions/checkout@v4
         id: old
         run: |
           git checkout ${{ github.event.before }}
@@ -164,6 +165,7 @@ jobs:
           done
 
       - name: pitest report for modified
+        uses: actions/checkout@v4
         id: new
         run: |
           git checkout ${{ github.event.sha }}
