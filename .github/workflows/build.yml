@@ -42,18 +42,18 @@ jobs:
       - name: Build ${{ matrix.java-version }}
         run: mvn -B clean test
 
-      - name: build external modules
+      - name: Build external modules
         run: mvn -q -DskipTests install
 
       - name: Fetch full history
         run: git fetch --unshallow || git fetch --all --tags
 
-      - name: go back
+      - name: Checkout before push
         uses : actions/checkout@v4
         with:
           ref: ${{ github.event.before }}
 
-      - name: initial pitest report
+      - name: Pitest report initially
         id: old
         run: |
           
@@ -64,7 +64,6 @@ jobs:
             echo "score=100" >> $GITHUB_OUTPUT
             exit 0
           fi
-          echo "trace A"
           
           # hashmap qui contiendra les modules qui doivent être explorés
           declare -A MODULES_AFFECTED
@@ -167,12 +166,12 @@ jobs:
             )
           done
 
-      - name: come back
+      - name: Checkout after push
         uses : actions/checkout@v4
         with:
           ref: ${{ github.sha }}
 
-      - name: pitest report for modified
+      - name: Pitest report after
         id: new
         run: |
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
@@ -182,7 +181,6 @@ jobs:
             echo "score=100" >> $GITHUB_OUTPUT
             exit 0
           fi
-          echo "trace A"
           
           # hashmap qui contiendra les modules qui doivent être explorés
           declare -A MODULES_AFFECTED
@@ -237,14 +235,12 @@ jobs:
             TARGET_CLASSES="${MODULES_AFFECTED[$MODULE_DIR]}"
             TEST_PATTERN="com.graphhopper.*Test"
           
-          # POUR CE MODULE PRÉCIS!!!
             echo "test pattern est : $TEST_PATTERN"
             echo "class pattern est : $TARGET_CLASSES"
           
             (
               cd "$MODULE_DIR"
               mvn -q -DskipTests clean install
-              echo "$TARGET_CLASSES"
               mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN"
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
@@ -284,7 +280,7 @@ jobs:
             )
           done
 
-      - name: comparison
+      - name: Comparison
         run: |
           if [ "${{ steps.new.outputs.core }}" -lt "${{ steps.old.outputs.core }}" ]; then
             echo "Erreur : Le score de mutation a baissé dans le module core" >&2
