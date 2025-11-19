@@ -52,7 +52,7 @@ jobs:
         id: old
         run: |
           git checkout ${{ github.event.before }}
-          mvn -q -DskipTests install
+          mvn -q -DskipTests clean install
           
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
@@ -124,7 +124,7 @@ jobs:
             (
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN"
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
               echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
@@ -167,7 +167,7 @@ jobs:
         id: new
         run: |
           git checkout ${{ github.event.sha }}
-          mvn -q -DskipTests install
+          mvn -q -DskipTests clean install
           
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$' || true)
           
@@ -238,7 +238,7 @@ jobs:
             (
               cd "$MODULE_DIR"
               echo "$TARGET_CLASSES"
-              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN" -DoutputFormats=HTML
+              mvn org.pitest:pitest-maven:1.21.1:mutationCoverage -DtargetClasses="$TARGET_CLASSES" -DtargetTests="$TEST_PATTERN"
               SCORE=$(grep -oP '(?<=<td>)[0-9]{1,3}(?=%)' target/pit-reports/index.html | sed -n '2p')
               echo "Le score est $SCORE"
               echo "$MODULE_DIR=$SCORE" >> $GITHUB_OUTPUT
