@@ -97,7 +97,7 @@ public class NavigateResourceTest {
 
                 Object entity = response.getEntity();
                 // System.out.println(entity);
-                assertNotNull(entity, "Le corps de la réponse ne devrait pas être null.");
+                assertNotNull(entity, "Le corps de la réponse ne devrait pas être `null`.");
             }
         }
 
